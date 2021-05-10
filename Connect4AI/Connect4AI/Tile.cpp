@@ -1,14 +1,16 @@
 #include "Tile.h"
-
 #include <iostream>
 
 Tile::Tile(int ID, int width, int height)
 {
 	this->ID = ID;
 	this->sBody = new Sprite();
+	
 	//Set unowned to current texture
 	this->sBody->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
 	this->sBody->setTextureRect(IntRect(0, 0, width, height));
+
+	//cout << "Tile placed" << endl;
 }
 
 Tile::~Tile()
@@ -24,24 +26,35 @@ void Tile::Draw(RenderWindow* targetWindow, RenderStates state)
 	}
 }
 
-bool Tile::inBounds(Vector2i clickLoc)
+bool Tile::inBounds(Vector2f clickLoc)
 {
-	cout << this->sBody->getPosition().x;
-	cout << this->sBody->getPosition().y;
-	cout << endl;
+	
 	FloatRect bounds = sBody->getGlobalBounds();
 
-	if(bounds.contains(Vector2f(clickLoc.x, clickLoc.y)))
+	if(bounds.contains(clickLoc))
 	{
+		//cout << this->sBody->getPosition().x;
+		//cout << this->sBody->getPosition().y;
+		cout << endl;
+
 		return true;
 	}
 	return false;
+}
+
+Teams Tile::getOwner()
+{
+	return currOwner;
 }
 
 void Tile::Claim(Teams newOwner)
 {
 	this->currOwner = newOwner;
 
+	//cout << this->sBody->getPosition().x;
+	//cout << this->sBody->getPosition().y;
+	//cout << endl;
+	
 	if(currOwner == YELLOW)
 	{
 		//Set yellow to current texture
@@ -67,4 +80,20 @@ void Tile::Claim(Teams newOwner)
 void Tile::setPosition(float x, float y)
 {
 	sBody->setPosition(Vector2f(x, y));
+}
+
+void Tile::setBoardPos(int x, int y)
+{
+	this->row = x;
+	this->col = y;
+}
+
+Vector2i Tile::getBoardPos()
+{
+	return Vector2i(this->row, this->col);
+}
+
+int Tile::getID()
+{
+	return this->ID;
 }

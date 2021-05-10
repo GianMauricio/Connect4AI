@@ -9,14 +9,20 @@ class Tile
 public:
 	Tile(int ID, int width, int height);
 	~Tile();
+	
 	void Draw(RenderWindow* targetWindow, RenderStates state);
 	void Claim(Teams newOwner);
 	void setPosition(float x, float y);
+	void setBoardPos(int x, int y);
 
-	bool inBounds(Vector2i clickLoc);
+	Vector2i getBoardPos();
+	int getID();
+	bool inBounds(Vector2f clickLoc);
+	Teams getOwner();
 	
 private:
 	int ID;
+	int row, col;
 	Sprite* sBody;
 	Teams currOwner = UNOWNED;
 };

@@ -2,20 +2,18 @@
 using namespace sf;
 const Time BaseRunner::PER_FRAME = seconds(1.f / 60.f);
 
-Tile* test;
-Sprite* testSprite;
 BaseRunner::BaseRunner() : window(VideoMode(WIDTH, HEIGHT), "Connect4", Style::Close)
 {
 	//Summon textures
 	TextureHandler::getInstance()->loadAll();
 	baseState = new RenderStates;
 
-	//Add TestTile
-	test = new Tile(0, 204, 192);
-	test->setPosition(WIDTH / 2, HEIGHT / 2);
+	tileBoard = new Board(5, 4);
 
-	testSprite = new Sprite();
-	testSprite->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
+	//MakeTestSprite
+	test = new Sprite();
+	test->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
+	test->setPosition(WIDTH / 2, HEIGHT / 2);
 }
 
 void BaseRunner::run()
@@ -38,7 +36,11 @@ void BaseRunner::run()
 
 void BaseRunner::render()
 {
-	test->Draw(&window, *baseState);
+	window.clear();
+
+	tileBoard->draw(&window, *baseState);
+	
+	window.display();
 }
 
 void BaseRunner::processEvents()
@@ -50,10 +52,10 @@ void BaseRunner::processEvents()
 			//Process click event
 			if(event.type == Event::MouseButtonPressed)
 			{
-				if (test->inBounds(Mouse::getPosition()))
-				{
-					test->Claim(RED);
-				}
+				//To pixel coords
+				Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+				tileBoard->tryPlace(mousePos);
 			}
 			break;
 

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "TextureHandler.h"
 #include "Tile.h"
+#include "Board.h"
 
 using namespace std;
 using namespace sf;
@@ -19,6 +20,8 @@ public:
 	void run();
 	
 private:
+	Board* tileBoard;
+	Sprite* test;
 	Time ticks;
 	RenderWindow window;
 	RenderStates* baseState;
