@@ -348,3 +348,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+Connect4AI/Connect4AI.sln
+Connect4AI/Connect4AI/Connect4AI.vcxproj
+Connect4AI/Connect4AI/Connect4AI.vcxproj.filters
