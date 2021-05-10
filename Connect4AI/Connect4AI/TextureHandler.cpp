@@ -21,7 +21,17 @@ void TextureHandler::loadAll() {
 	 */
 
 	//Load Game Objects
-	
+	Texture* Unclaimed = new Texture();
+	if (!Unclaimed->loadFromFile("Textures\\Unassigned.png")) cout << "Failed to Load blank tile";
+	Textures["Tiles"].push_back(Unclaimed);
+
+	Texture* Team1 = new Texture();
+	if (!Team1->loadFromFile("Textures\\T1.png")) cout << "Failed to Load yellow tile";
+	Textures["Tiles"].push_back(Team1);
+
+	Texture* Team2 = new Texture();
+	if (!Team2->loadFromFile("Textures\\T2.png")) cout << "Failed to Load red tile";
+	Textures["Tiles"].push_back(Team2);
 
 	//Load fonts
 	Font* font = new Font();

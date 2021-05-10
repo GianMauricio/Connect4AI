@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "TextureHandler.h"
+#include "Tile.h"
 
 using namespace std;
 using namespace sf;

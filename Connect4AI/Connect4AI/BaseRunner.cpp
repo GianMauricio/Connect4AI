@@ -2,13 +2,20 @@
 using namespace sf;
 const Time BaseRunner::PER_FRAME = seconds(1.f / 60.f);
 
+Tile* test;
+Sprite* testSprite;
 BaseRunner::BaseRunner() : window(VideoMode(WIDTH, HEIGHT), "Connect4", Style::Close)
 {
 	//Summon textures
 	TextureHandler::getInstance()->loadAll();
 	baseState = new RenderStates;
 
-	//Add Tiles
+	//Add TestTile
+	test = new Tile(0, 204, 192);
+	test->setPosition(WIDTH / 2, HEIGHT / 2);
+
+	testSprite = new Sprite();
+	testSprite->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
 }
 
 void BaseRunner::run()
@@ -24,8 +31,6 @@ void BaseRunner::run()
 			FixedUpdate -= PER_FRAME;
 
 			processEvents();
-
-			//update(PER_FRAME); /*Might not be needed*/
 		}
 		render();
 	}
@@ -33,7 +38,7 @@ void BaseRunner::run()
 
 void BaseRunner::render()
 {
-	//Use list of tiles
+	test->Draw(&window, *baseState);
 }
 
 void BaseRunner::processEvents()
@@ -42,7 +47,14 @@ void BaseRunner::processEvents()
 	if (window.pollEvent(event)) {
 		switch (event.type) {
 		default:
-			//Process event
+			//Process click event
+			if(event.type == Event::MouseButtonPressed)
+			{
+				if (test->inBounds(Mouse::getPosition()))
+				{
+					test->Claim(RED);
+				}
+			}
 			break;
 
 		case Event::Closed:
