@@ -36,10 +36,12 @@ void BaseRunner::run()
 
 void BaseRunner::render()
 {
+	/*This is what fixes the draw bug*/
 	window.clear();
 
 	tileBoard->draw(&window, *baseState);
-	
+
+	/*This too*/
 	window.display();
 }
 

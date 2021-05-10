@@ -64,18 +64,28 @@ void Board::tryPlace(Vector2f mousePos)
 	}
 }
 
-bool Board::isWon()
-{
-	return Check4();
-}
-
 bool Board::isTie()
 {
-	return false;
+	bool tied = true;
+	for(Tile* tile : TileList)
+	{
+		if(tile->getOwner() == UNOWNED)
+		{
+			tied = false;
+		}
+	}
+	
+	if(tied)
+	{
+		cout << "Drawn" << endl;
+	}
+	
+	return tied;
 }
 
 void Board::draw(RenderWindow* window, RenderStates state)
 {
+	//Bug found
 	for (Tile* tile : TileList)
 	{
 		tile->Draw(window, state);
@@ -333,5 +343,8 @@ Teams Board::Check4()
 		cout << "Diag ID:7+ found a winner" << endl;
 		return initialDiag;
 	}
+
+	isTie();
+	
 	return UNOWNED;
 }
