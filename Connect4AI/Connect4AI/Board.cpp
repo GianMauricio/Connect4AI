@@ -85,10 +85,17 @@ bool Board::isTie()
 
 void Board::draw(RenderWindow* window, RenderStates state)
 {
-	//Bug found
-	for (Tile* tile : TileList)
+	if(isQuit)
 	{
-		tile->Draw(window, state);
+		window->close();
+	}
+	else
+	{
+		//Bug found
+		for (Tile* tile : TileList)
+		{
+			tile->Draw(window, state);
+		}
 	}
 }
 
@@ -101,10 +108,10 @@ void Board::PlaceTile(int ID)
 			cout << "Found ID: " << tile->getID() << endl;
 			tile->Claim(currTeam);
 			turnChange();
-			Check4();
 			break;
 		}
 	}
+	if (Check4() != UNOWNED) { isQuit = true; }
 }
 
 void Board::turnChange()

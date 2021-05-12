@@ -25,6 +25,7 @@ private:
 	int tileLength = 192;
 	int TilesAcross;
 	int TilesAlong;
+	bool isQuit = false;
 	vector<Tile*> TileList;
 	Teams currTeam = RED;
 
