@@ -10,6 +10,9 @@ public:
 	//Try to place a tile at click location
 	void tryPlace(Vector2f mousePos);
 
+	//Try to place a tile at with a given ID
+	void tryPlace(int targetTile); /* Overload is here for AI */
+
 	//Check if the board is a tie or has no possible moves
 	bool isTie();
 

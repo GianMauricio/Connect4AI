@@ -64,6 +64,17 @@ void Board::tryPlace(Vector2f mousePos)
 	}
 }
 
+void Board::tryPlace(int targetTile)
+{
+	for(Tile* tile : TileList)
+	{
+		if(tile->getID() == targetTile)
+		{
+			PlaceTile(targetTile);
+		}
+	}
+}
+
 bool Board::isTie()
 {
 	bool tied = true;
