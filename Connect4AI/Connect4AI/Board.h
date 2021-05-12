@@ -3,6 +3,7 @@
 #include "AIPlayer.h"
 #include <vector>
 
+typedef vector<Tile*> tileRow;
 class Board
 {
 public:
@@ -38,12 +39,13 @@ private:
 	int tileLength = 192;
 	int TilesAcross;
 	int TilesAlong;
-	vector<Tile*> TileList;
+	bool isQuit = false;
+	vector<tileRow*> TileList;
 	Teams currTeam = RED;
 	AIPlayer* opponent;
 
 	//Change tile color to currently active team
-	void PlaceTile(int ID);
+	void PlaceTile(pair< int, int> ID);
 
 	//Place tile but for AI
 	void actionlessPlaceTile(int ID);

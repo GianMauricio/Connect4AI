@@ -7,19 +7,30 @@ Board::Board(int Twidth, int Theight)
 	this->TilesAcross = Twidth;
 	this->TilesAlong = Theight;
 
-	int tileID = 0;
+	//Initialize list
+	for (int i = 0; i < TilesAcross; i++)
+	{
+		tileRow* newtileRow = new tileRow;
+		
+		for (int j = 0; j < TilesAlong; j++)
+		{
+			Tile* newpointer;
+			newtileRow->push_back(newpointer);
+		}
+
+		TileList.push_back(newtileRow);
+	}
+	
+	pair<int, int> tileID = {0, 0};
 	//Spawn tiles
 	for(int i = 0; i < TilesAcross; i++) /*Set row*/
 	{
 		for(int j = 0; j < TilesAlong; j++) /*Set Col*/
 		{
-			Tile* newTile = new Tile(tileID, tileWidth, tileLength);
+			Tile* newTile = new Tile(i, j, tileWidth, tileLength);
 			newTile->setPosition(i * tileWidth, j * tileLength);
-			tileID++;
 
-
-			newTile->setBoardPos(i, j);
-			TileList.push_back(newTile);
+			TileList.at(i)->at(j) = newTile;
 		}
 	}
 }
@@ -37,30 +48,29 @@ void Board::tryPlace(Vector2f mousePos)
 {
 	for(int i = 0; i < TileList.size(); i++)
 	{
-		if(TileList[i]->inBounds(mousePos))
+		for(int j = 0; j < TileList[i]->size(); j++)
 		{
-			if(TileList[i]->getOwner() == UNOWNED)
+			if (TileList.at(i)->at(j)->inBounds(mousePos))
 			{
-				if (TileList[i]->getBoardPos().y % 4 == 3)
+				cout << "Checking Tile ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
+				if (TileList.at(i)->at(j)->getOwner() == UNOWNED)
 				{
-					//cout << "Checking for bottom tile" << endl;
-					PlaceTile(TileList[i]->getID());
-				}
-
-				else {
-					//cout << "Checking for non-bottom tile" << endl;
-					int checkRow = TileList[i]->getBoardPos().x;
-					int checkCol = TileList[i]->getBoardPos().y;
-
-					for (Tile* tile : TileList)
+					if (TileList.at(i)->at(j)->getID().second == 3)
 					{
-						if (tile->getBoardPos().x == checkRow && tile->getBoardPos().y == checkCol + 1)
+						cout << "Checking for bottom tile" << endl;
+						PlaceTile(TileList.at(i)->at(j)->getID());
+					}
+
+					else {
+						cout << "Checking for non-bottom tile" << endl;
+						int checkCol = TileList.at(i)->at(j)->getID().second + 1;
+						int checkRow = TileList.at(i)->at(j)->getID().first;
+
+						cout << "Checking tile with ID: " << checkRow << ", "<< checkCol << endl;
+						if (TileList.at(checkRow)->at(checkCol)->getOwner() == RED || 
+							TileList.at(checkRow)->at(checkCol)->getOwner() == YELLOW)
 						{
-							//cout << "Checking tile with ID: " << tile->getID() << endl;
-							if (tile->getOwner() == RED || tile->getOwner() == YELLOW)
-							{
-								PlaceTile(TileList[i]->getID());
-							}
+							PlaceTile(TileList.at(i)->at(j)->getID());
 						}
 					}
 				}
@@ -72,16 +82,20 @@ void Board::tryPlace(Vector2f mousePos)
 bool Board::isTie()
 {
 	bool tied = true;
-	for(Tile* tile : TileList)
+	for (int i = 0; i < TileList.size(); i++)
 	{
-		if(tile->getOwner() == UNOWNED)
+		for (int j = 0; j < TileList[i]->size(); j++)
 		{
-			tied = false;
+			if (TileList.at(i)->at(j)->getOwner() == UNOWNED)
+			{
+				tied = false;
+			}
 		}
 	}
 	
 	if(tied)
 	{
+		isQuit = true;
 		cout << "Drawn" << endl;
 	}
 	
@@ -94,31 +108,37 @@ void Board::draw(RenderWindow* window, RenderStates state)
 	{
 		window->close();
 	}
-
+  
 	else
 	{
 		//Bug found
-		for (Tile* tile : TileList)
+		for (int i = 0; i < TileList.size(); i++)
 		{
-			tile->Draw(window, state);
+			for (int j = 0; j < TileList[i]->size(); j++)
+			{
+				TileList.at(i)->at(j)->Draw(window, state);
+			}
 		}
 	}
 }
 
-void Board::PlaceTile(int ID)
+void Board::PlaceTile(pair< int, int> ID)
 {
-	for (Tile* tile : TileList)
+	for (int i = 0; i < TileList.size(); i++)
 	{
-		if(tile->getID() == ID)
+		for (int j = 0; j < TileList[i]->size(); j++)
 		{
-			//cout << "Found ID: " << tile->getID() << endl;
-			tile->Claim(currTeam);
-			turnChange();
-			break;
+			if (TileList.at(i)->at(j)->getID() == ID)
+			{
+				cout << "Found ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
+				TileList.at(i)->at(j)->Claim(currTeam);
+				turnChange();
+				break;
+			}
 		}
 	}
 
-	if(Check4() != UNOWNED) isQuit = true;
+	if (Check4() != UNOWNED) { isQuit = true; }
 }
 
 Teams Board::Check4()
@@ -131,8 +151,7 @@ Teams Board::Check4()
 	for (int i = 0; i < 5; i++) /*Column number*/
 	{
 		//Set initial team
-		int initialTile = i * 4;
-		colInitial = TileList[initialTile]->getOwner();
+		colInitial = TileList.at(i)->at(0)->getOwner();
 
 		//If circle is unowned, continue to next column
 		if (colInitial == UNOWNED)
@@ -145,7 +164,7 @@ Teams Board::Check4()
 		for (int j = 0; j < 4; j++) /*Circle in column*/
 		{
 			//If circle belongs to the opposite team, stop checking column
-			if (TileList[initialTile + j]->getOwner() != colInitial)
+			if (TileList.at(i)->at(j)->getOwner() != colInitial)
 			{
 				count = 0;
 				break;
@@ -161,19 +180,28 @@ Teams Board::Check4()
 		//cout << "Current col count: " << count << endl;
 		if (count == 4)
 		{
-			cout << "Col search found winner!" << endl;
+			string winner = "";
+			if(colInitial == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Col search found that "<< winner << " is the winner!" << endl;
 			return colInitial;
 		}
 	}
-
+	
 	//Search through all rows
 	count = 0;
 	Teams rowInitial;
 	
 	//Forward facing row-search
-	for (int i = 0; i < 4; i++) /*Row number*/
+	for (int i = 0; i < 4; i++) //Row number
 	{
-		rowInitial = TileList[i]->getOwner();
+		rowInitial = TileList.at(0)->at(i)->getOwner();
 
 		if (rowInitial == UNOWNED)
 		{
@@ -181,11 +209,10 @@ Teams Board::Check4()
 			continue;
 		}
 
-		for (int j = 0; j < 4; j++) /*Circle in row*/
+		for (int j = 0; j < 4; j++) //Circle in row
 		{
-			int checkTile = i + (j * 4);
 			//cout << "Tile being checked: " << checkTile << endl;
-			if (TileList[checkTile]->getOwner() != rowInitial)
+			if (TileList.at(j)->at(i)->getOwner() != rowInitial)
 			{
 				count = 0;
 				break;
@@ -200,17 +227,26 @@ Teams Board::Check4()
 		//if forward facing finds stuff
 		if (count == 4)
 		{
-			cout << "F.Row search found winner!" << endl;
+			string winner = "";
+			if (rowInitial == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "F. Row search found that " << winner << " is the winner!" << endl;
 			return rowInitial;
 		}
 	}
 
+	
 	//Backwards facing row search
 	count = 0;
 	for(int i = 0; i < 4; i++)
 	{
-		int initialTile = 16 + i;
-		rowInitial = TileList[initialTile]->getOwner();
+		rowInitial = TileList.at(4)->at(i)->getOwner();
 
 		if (rowInitial == UNOWNED)
 		{
@@ -218,12 +254,9 @@ Teams Board::Check4()
 			continue;
 		}
 
-		for (int j = 0; j < 4; j++)
+		for (int j = 4; j > 0; j--)
 		{
-			int checkTile = 16 + i - (j * 4);
-			//cout << "Tile being checked: " << checkTile << endl;
-
-			if (TileList[checkTile]->getOwner() != rowInitial)
+			if (TileList.at(j)->at(i)->getOwner() != rowInitial)
 			{
 				count = 0;
 				break;
@@ -238,20 +271,28 @@ Teams Board::Check4()
 		//if backwards facing finds stuff
 		if (count == 4)
 		{
-			cout << "B.Row search found winner!" << endl;
+			string winner = "";
+			if (rowInitial == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "B. Row search found that " << winner << " is the winner!" << endl;
 			return rowInitial;
 		}
 	}
 
+	
 	//Diagonal check
-
-	//Diag ID5
+	//Diag ID:i
 	count = 0;
-	Teams initialDiag = TileList[0]->getOwner();
+	Teams initialDiag = TileList.at(0)->at(0)->getOwner();
 	for(int i = 0; i < 4; i++)
 	{
-		int tileCheck = i * 5;
-		if(TileList[tileCheck]->getOwner() != initialDiag)
+		if(TileList.at(i)->at(i)->getOwner() != initialDiag)
 		{
 			count = 0;
 			break;
@@ -263,20 +304,29 @@ Teams Board::Check4()
 		}
 	}
 
-	//If Diag ID:5 finds winner
+	//If Diag ID:i finds winner
 	if (count == 4 && initialDiag != UNOWNED)
 	{
-		cout << "Diag 5 search found winner!" << endl;
+		string winner = "";
+		if (initialDiag == RED)
+		{
+			winner = "Red Team";
+		}
+		else
+		{
+			winner = "Yellow Team";
+		}
+		cout << "Diag ID:i found that " << winner << " is the winner!" << endl;
 		return initialDiag;
 	}
 
-	//Diag ID:The diagonal beside ID5
+	//DONE
+	//Diag ID:i+1
 	count = 0;
-	initialDiag = TileList[4]->getOwner();
+	initialDiag = TileList.at(1)->at(0)->getOwner();
 	for (int i = 0; i < 4; i++)
 	{
-		int tileCheck = i * 5 + 4;
-		if (TileList[tileCheck]->getOwner() != initialDiag)
+		if (TileList.at(i + 1)->at(i)->getOwner() != initialDiag)
 		{
 			count = 0;
 			break;
@@ -288,45 +338,29 @@ Teams Board::Check4()
 		}
 	}
 
-	//If Diag ID:The diagonal beside ID5 finds winner
+	//If Diag ID:i+1
 	if (count == 4 && initialDiag != UNOWNED)
 	{
-		cout << "The diagonal beside ID5 search found a winner!" << endl;
+		string winner = "";
+		if (initialDiag == RED)
+		{
+			winner = "Red Team";
+		}
+		else
+		{
+			winner = "Yellow Team";
+		}
+		cout << "Diag ID:i+1 search found that " << winner << " is the winner!" << endl;
 		return initialDiag;
 	}
 
+	
 	//Diag ID:3
 	count = 0;
-	initialDiag = TileList[12]->getOwner();
-	for (int i = 1; i < 5; i++)
-	{
-		int tileCheck = i * 3;
-		if (TileList[tileCheck]->getOwner() != initialDiag)
-		{
-			count = 0;
-			break;
-		}
-
-		else
-		{
-			count++;
-		}
-	}
-
-	//If Diag ID:The diagonal beside ID5 finds winner
-	if (count == 4 && initialDiag != UNOWNED)
-	{
-		cout << "Diag ID:3 found a winner" << endl;
-		return initialDiag;
-	}
-
-	//Diag ID:7+
-	count = 0;
-	initialDiag = TileList[16]->getOwner();
+	initialDiag = TileList.at(3)->at(0)->getOwner();
 	for (int i = 0; i < 4; i++)
 	{
-		int tileCheck = 7 + i * 3;
-		if (TileList[tileCheck]->getOwner() != initialDiag)
+		if (TileList.at(3 - i)->at(i)->getOwner() != initialDiag)
 		{
 			count = 0;
 			break;
@@ -338,10 +372,54 @@ Teams Board::Check4()
 		}
 	}
 
-	//If Diag ID:7+ finds winner
+	//If Diag ID:3
 	if (count == 4 && initialDiag != UNOWNED)
 	{
-		cout << "Diag ID:7+ found a winner" << endl;
+		string winner = "";
+		if (initialDiag == RED)
+		{
+			winner = "Red Team";
+		}
+		else
+		{
+			winner = "Yellow Team";
+		}
+		cout << "Diag ID3 search found that " << winner << " is the winner!" << endl;
+		return initialDiag;
+	}
+	
+
+	//DONE
+	//Diag ID:4
+	count = 0;
+	initialDiag = TileList.at(4)->at(0)->getOwner();
+	for (int i = 0; i < 4; i++)
+	{
+		if (TileList.at(4 - i)->at(i)->getOwner() != initialDiag)
+		{
+			count = 0;
+			break;
+		}
+
+		else
+		{
+			count++;
+		}
+	}
+
+	//If Diag ID:4
+	if (count == 4 && initialDiag != UNOWNED)
+	{
+		string winner = "";
+		if (initialDiag == RED)
+		{
+			winner = "Red Team";
+		}
+		else
+		{
+			winner = "Yellow Team";
+		}
+		cout << "Diag ID 4 search found that " << winner << " is the winner!" << endl;
 		return initialDiag;
 	}
 
