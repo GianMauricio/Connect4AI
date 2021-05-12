@@ -10,6 +10,9 @@ BaseRunner::BaseRunner() : window(VideoMode(WIDTH, HEIGHT), "Connect4", Style::C
 
 	//Make new board
 	tileBoard = new Board(5, 4);
+
+	//Make new opponent
+	opponent = new AIPlayer();
 }
 
 void BaseRunner::run()
@@ -39,6 +42,8 @@ void BaseRunner::render()
 
 	/*This too*/
 	window.display();
+
+	//cout << "Rendering" << endl;
 }
 
 void BaseRunner::processEvents()

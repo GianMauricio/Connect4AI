@@ -3,6 +3,6 @@
 int main()
 {
     BaseRunner runner;
-
+	srand(time(NULL));
 	runner.run();
 }

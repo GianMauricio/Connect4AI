@@ -3,8 +3,8 @@
 #include <vector>
 #include <iostream>
 #include "TextureHandler.h"
-#include "Tile.h"
 #include "Board.h"
+#include "AIPlayer.h"
 
 using namespace std;
 using namespace sf;
@@ -20,6 +20,7 @@ public:
 	void run();
 	
 private:
+	AIPlayer* opponent;
 	Board* tileBoard;
 	Sprite* test;
 	Time ticks;

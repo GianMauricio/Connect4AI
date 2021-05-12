@@ -1,5 +1,4 @@
 #include "Board.h"
-
 #include <iostream>
 
 Board::Board(int Twidth, int Theight)
@@ -26,6 +25,11 @@ Board::Board(int Twidth, int Theight)
 
 Board::~Board()
 {
+}
+
+void Board::setAI(AIPlayer* newOpponent)
+{
+	this->opponent = newOpponent;
 }
 
 void Board::tryPlace(Vector2f mousePos)
@@ -64,17 +68,6 @@ void Board::tryPlace(Vector2f mousePos)
 	}
 }
 
-void Board::tryPlace(int targetTile)
-{
-	for(Tile* tile : TileList)
-	{
-		if(tile->getID() == targetTile)
-		{
-			PlaceTile(targetTile);
-		}
-	}
-}
-
 bool Board::isTie()
 {
 	bool tied = true;
@@ -109,26 +102,36 @@ void Board::PlaceTile(int ID)
 	{
 		if(tile->getID() == ID)
 		{
-			cout << "Found ID: " << tile->getID() << endl;
+			//cout << "Found ID: " << tile->getID() << endl;
 			tile->Claim(currTeam);
 			turnChange();
-			Check4();
 			break;
 		}
 	}
+
+	Check4();
+}
+
+void Board::actionlessPlaceTile(int ID)
+{
+	for (Tile* tile : TileList)
+	{
+		if (tile->getID() == ID)
+		{
+			//cout << "Found ID: " << tile->getID() << endl;
+			tile->Claim(currTeam);
+			break;
+		}
+	}
+
+	Check4();
 }
 
 void Board::turnChange()
 {
-	if (this->currTeam == RED)
-	{
-		currTeam = YELLOW;
-	}
-
-	else if (currTeam == YELLOW)
-	{
-		currTeam = RED;
-	}
+	currTeam = YELLOW; /*Give turn to AI*/
+	actionlessPlaceTile(opponent->requestMove(this->TileList));
+	currTeam = RED;
 }
 
 Teams Board::Check4()
@@ -356,6 +359,5 @@ Teams Board::Check4()
 	}
 
 	isTie();
-	
 	return UNOWNED;
 }

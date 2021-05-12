@@ -1,12 +1,17 @@
 #pragma once
 #include "Tile.h"
+#include "AIPlayer.h"
 #include <vector>
+
 class Board
 {
 public:
 	Board(int Twidth, int Theight);
 	~Board();
 
+	//Set AI opponent
+	void setAI(AIPlayer* newOpponent);
+	
 	//Try to place a tile at click location
 	void tryPlace(Vector2f mousePos);
 
@@ -30,9 +35,13 @@ private:
 	int TilesAlong;
 	vector<Tile*> TileList;
 	Teams currTeam = RED;
+	AIPlayer* opponent;
 
 	//Change tile color to currently active team
 	void PlaceTile(int ID);
+
+	//Place tile but for AI
+	void actionlessPlaceTile(int ID);
 
 	//Changes the current team turn
 	void turnChange();

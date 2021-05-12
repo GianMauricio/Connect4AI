@@ -1,5 +1,5 @@
 #pragma once
-#include "Board.h"
+#include "Tile.h"
 #include <unordered_map>
 
 class AIPlayer
