@@ -1,16 +1,14 @@
 #include "Tile.h"
 #include <iostream>
 
-Tile::Tile(int ID, int width, int height)
+Tile::Tile(int X, int Y, int width, int height)
 {
-	this->ID = ID;
+	this->ID = {X, Y};
 	this->sBody = new Sprite();
 	
 	//Set unowned to current texture
 	this->sBody->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
 	this->sBody->setTextureRect(IntRect(0, 0, width, height));
-
-	//cout << "Tile placed" << endl;
 }
 
 Tile::~Tile()
@@ -82,18 +80,7 @@ void Tile::setPosition(float x, float y)
 	sBody->setPosition(Vector2f(x, y));
 }
 
-void Tile::setBoardPos(int x, int y)
-{
-	this->row = x;
-	this->col = y;
-}
-
-Vector2i Tile::getBoardPos()
-{
-	return Vector2i(this->row, this->col);
-}
-
-int Tile::getID()
+pair<int, int> Tile::getID()
 {
 	return this->ID;
 }

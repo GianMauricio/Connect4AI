@@ -1,6 +1,8 @@
 #pragma once
 #include "Tile.h"
 #include <vector>
+
+typedef vector<Tile*> tileRow;
 class Board
 {
 public:
@@ -26,11 +28,11 @@ private:
 	int TilesAcross;
 	int TilesAlong;
 	bool isQuit = false;
-	vector<Tile*> TileList;
+	vector<tileRow*> TileList;
 	Teams currTeam = RED;
 
 	//Change tile color to currently active team
-	void PlaceTile(int ID);
+	void PlaceTile(pair< int, int> ID);
 
 	//Changes the current team turn
 	void turnChange();
