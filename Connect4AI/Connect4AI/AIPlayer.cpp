@@ -1,4 +1,5 @@
 #include "AIPlayer.h"
+#include "Board.h"
 
 AIPlayer::AIPlayer()
 {
@@ -9,12 +10,26 @@ AIPlayer::~AIPlayer()
 	
 }
 
-int AIPlayer::requestMove(vector<Tile*> tileList)
+int AIPlayer::requestMove(vector<Tile*> tileList, Teams currTeam, int depth, int alpha, int beta)
 {
 	//Scan board for all possible moves and assign values to them
-	unordered_map<int, int> legalMoves;
+	vector<int> legalMoves;
+	int BestTile = 0;
+	int bestScore;
 
-	//Using list of all tiles...
+	//Determine starting value of best score based on current perspective.
+	if(currTeam == YELLOW)
+	{
+		bestScore = Board::LOSS; /*Assume worst*/
+	}
+	else
+	{
+		bestScore = Board::WIN; /*Assume best*/
+	}
+
+	//??? Check board state?
+	
+	//Using list of all tiles... find all legal moves
 	for (int i = 0; i < tileList.size(); i++)
 	{
 		//If the tile is a legal move
@@ -22,8 +37,8 @@ int AIPlayer::requestMove(vector<Tile*> tileList)
 		{
 			if (tileList[i]->getBoardPos().y % 4 == 3)
 			{
-				//Add to map of legal moves with value
-				legalMoves.emplace(i, getValue(i));
+				//Add to map of legal moves
+				legalMoves.push_back(i);
 			}
 
 			else {
@@ -36,7 +51,7 @@ int AIPlayer::requestMove(vector<Tile*> tileList)
 					{
 						if (tile->getOwner() == RED || tile->getOwner() == YELLOW)
 						{
-							legalMoves.emplace(i, getValue(i));
+							legalMoves.push_back(i);
 						}
 					}
 				}
@@ -44,27 +59,28 @@ int AIPlayer::requestMove(vector<Tile*> tileList)
 		}
 	}
 
-
-	//Once all legal moves have been mapped out; determine best one to play.
-	int highestValue = -1;
-	int bestID = -1;
 	
-	for(pair<int, int> tile : legalMoves)
-	{
-		//If checked tile is better than current best...
-		if(tile.second > highestValue)
-		{
-			//Set tile to be current best
-			highestValue = tile.second;
-			bestID = tile.first;
-		}
+	if (depth == 0) {
+		return legalMoves[BestTile];
 	}
+	
+	//For all legal moves, do this function again with depth - 1;
 
-	return bestID;
+	//Set best Move according to last search
+
+	//Compare score of ^^^ to currently established best move (across all searches)
+	
+	return requestMove(tileList, currTeam, depth - 1, alpha, beta);
 }
 
-int AIPlayer::getValue(int tileTarget)
+/*
+int AIPlayer::bestMove(vector<Tile*> tileList, vector<int> legalMoves, int depth, int alpha, int beta)
 {
 	//Determine if the move is good or not
-	return rand() % 100; /*AI be dumb AF*/
+	int value = 0;
+	int iDBest = 0;
+
+	
+	return value;
 }
+*/

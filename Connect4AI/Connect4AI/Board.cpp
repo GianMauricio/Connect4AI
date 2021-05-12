@@ -1,5 +1,6 @@
 #include "Board.h"
 #include <iostream>
+#include "BaseRunner.h"
 
 Board::Board(int Twidth, int Theight)
 {
@@ -89,10 +90,18 @@ bool Board::isTie()
 
 void Board::draw(RenderWindow* window, RenderStates state)
 {
-	//Bug found
-	for (Tile* tile : TileList)
+	if(isQuit)
 	{
-		tile->Draw(window, state);
+		window->close();
+	}
+
+	else
+	{
+		//Bug found
+		for (Tile* tile : TileList)
+		{
+			tile->Draw(window, state);
+		}
 	}
 }
 
@@ -109,7 +118,7 @@ void Board::PlaceTile(int ID)
 		}
 	}
 
-	Check4();
+	if(Check4() != UNOWNED) isQuit = true;
 }
 
 void Board::actionlessPlaceTile(int ID)
@@ -124,13 +133,14 @@ void Board::actionlessPlaceTile(int ID)
 		}
 	}
 
-	Check4();
+	if (Check4() != UNOWNED) isQuit = true;
 }
 
 void Board::turnChange()
 {
 	currTeam = YELLOW; /*Give turn to AI*/
-	actionlessPlaceTile(opponent->requestMove(this->TileList));
+	//this->TileList, currTeam, MAX_DEPTH, LOSS, WIN
+	actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
 	currTeam = RED;
 }
 

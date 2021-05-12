@@ -6,6 +6,9 @@
 class Board
 {
 public:
+	static const int LOSS = -1000;
+	static const int WIN = 1000;
+	
 	Board(int Twidth, int Theight);
 	~Board();
 
@@ -29,6 +32,8 @@ public:
 	Teams Check4();
 	
 private:
+	static const int MAX_DEPTH = 19;
+	bool isQuit = false;
 	int tileWidth = 204;
 	int tileLength = 192;
 	int TilesAcross;

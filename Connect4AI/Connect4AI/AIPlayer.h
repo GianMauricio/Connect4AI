@@ -8,8 +8,8 @@ public:
 	AIPlayer();
 	~AIPlayer();
 
-	int requestMove(vector<Tile*> tileList);
+	int requestMove(vector<Tile*> tileList, Teams currTeam, int depth, int alpha, int beta);
 private:
-	int getValue(int tileTarget);
+	//int bestMove(vector<Tile*> tileList, vector<int> legalMoves, int depth, int alpha, int beta);
 };
 
