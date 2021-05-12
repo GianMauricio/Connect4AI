@@ -10,11 +10,11 @@ AIPlayer::~AIPlayer()
 	
 }
 
-int AIPlayer::requestMove(vector<Tile*> tileList, Teams currTeam, int depth, int alpha, int beta)
+int AIPlayer::requestMove(Tile* BoardState[4][5], Teams currTeam, int depth, int alpha, int beta)
 {
 	//Scan board for all possible moves and assign values to them
-	vector<int> legalMoves;
-	int BestTile = 0;
+	vector<pair<int,int>> legalMoves;
+	pair<int, int> BestTile = { 0, 0 };
 	int bestScore;
 
 	//Determine starting value of best score based on current perspective.
@@ -73,7 +73,7 @@ int AIPlayer::requestMove(vector<Tile*> tileList, Teams currTeam, int depth, int
 	return requestMove(tileList, currTeam, depth - 1, alpha, beta);
 }
 
-/*
+/*----------------------------------------NOAH ARK---------------------------------------------------
 int AIPlayer::bestMove(vector<Tile*> tileList, vector<int> legalMoves, int depth, int alpha, int beta)
 {
 	//Determine if the move is good or not
@@ -82,5 +82,29 @@ int AIPlayer::bestMove(vector<Tile*> tileList, vector<int> legalMoves, int depth
 
 	
 	return value;
+}
+
+void Board::actionlessPlaceTile(int ID)
+{
+	for (Tile* tile : TileList)
+	{
+		if (tile->getID() == ID)
+		{
+			//cout << "Found ID: " << tile->getID() << endl;
+			tile->Claim(currTeam);
+			break;
+		}
+	}
+
+	if (Check4() != UNOWNED) isQuit = true;
+}
+
+void Board::turnChange()
+{
+	currTeam = YELLOW; Give turn to AI
+	//this->TileList, currTeam, MAX_DEPTH, LOSS, WIN
+
+actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
+currTeam = RED;
 }
 */

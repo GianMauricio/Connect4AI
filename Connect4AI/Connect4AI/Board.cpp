@@ -121,29 +121,6 @@ void Board::PlaceTile(int ID)
 	if(Check4() != UNOWNED) isQuit = true;
 }
 
-void Board::actionlessPlaceTile(int ID)
-{
-	for (Tile* tile : TileList)
-	{
-		if (tile->getID() == ID)
-		{
-			//cout << "Found ID: " << tile->getID() << endl;
-			tile->Claim(currTeam);
-			break;
-		}
-	}
-
-	if (Check4() != UNOWNED) isQuit = true;
-}
-
-void Board::turnChange()
-{
-	currTeam = YELLOW; /*Give turn to AI*/
-	//this->TileList, currTeam, MAX_DEPTH, LOSS, WIN
-	actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
-	currTeam = RED;
-}
-
 Teams Board::Check4()
 {
 	//Search alg
