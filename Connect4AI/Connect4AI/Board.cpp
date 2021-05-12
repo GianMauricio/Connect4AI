@@ -1,6 +1,6 @@
 #include "Board.h"
-
 #include <iostream>
+#include "BaseRunner.h"
 
 Board::Board(int Twidth, int Theight)
 {
@@ -37,6 +37,11 @@ Board::Board(int Twidth, int Theight)
 
 Board::~Board()
 {
+}
+
+void Board::setAI(AIPlayer* newOpponent)
+{
+	this->opponent = newOpponent;
 }
 
 void Board::tryPlace(Vector2f mousePos)
@@ -103,6 +108,7 @@ void Board::draw(RenderWindow* window, RenderStates state)
 	{
 		window->close();
 	}
+  
 	else
 	{
 		//Bug found
@@ -133,19 +139,6 @@ void Board::PlaceTile(pair< int, int> ID)
 	}
 
 	if (Check4() != UNOWNED) { isQuit = true; }
-}
-
-void Board::turnChange()
-{
-	if (this->currTeam == RED)
-	{
-		currTeam = YELLOW;
-	}
-
-	else if (currTeam == YELLOW)
-	{
-		currTeam = RED;
-	}
 }
 
 Teams Board::Check4()

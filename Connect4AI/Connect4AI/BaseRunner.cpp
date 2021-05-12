@@ -8,12 +8,11 @@ BaseRunner::BaseRunner() : window(VideoMode(WIDTH, HEIGHT), "Connect4", Style::C
 	TextureHandler::getInstance()->loadAll();
 	baseState = new RenderStates;
 
+	//Make new board
 	tileBoard = new Board(5, 4);
 
-	//MakeTestSprite
-	test = new Sprite();
-	test->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
-	test->setPosition(WIDTH / 2, HEIGHT / 2);
+	//Make new opponent
+	opponent = new AIPlayer();
 }
 
 void BaseRunner::run()
@@ -43,6 +42,8 @@ void BaseRunner::render()
 
 	/*This too*/
 	window.display();
+
+	//cout << "Rendering" << endl;
 }
 
 void BaseRunner::processEvents()

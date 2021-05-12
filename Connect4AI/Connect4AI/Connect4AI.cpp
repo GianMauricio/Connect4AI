@@ -3,6 +3,5 @@
 int main()
 {
     BaseRunner runner;
-
 	runner.run();
 }
