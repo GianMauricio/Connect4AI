@@ -29,37 +29,36 @@ pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam,
 	}
 
 	//??? Check board state?
-	
-	//Using list of all tiles... find all legal moves //ADDEDENDUM NOT YET FIXED
+
+	//Using list of all tiles... find all legal moves //ADDEDENDUM NOT YET Working
 	for (int i = 0; i < TileList.size(); i++)
 	{
-		//If the tile is a legal move
-		if (TileList[i]->getOwner() == UNOWNED)
+		for (int j = 0; j < TileList[i]->size(); j++)
 		{
-			if (tileList[i]->getBoardPos().y % 4 == 3)
+			if (TileList.at(i)->at(j)->getOwner() == UNOWNED)
 			{
-				//Add to map of legal moves
-				legalMoves.push_back(i);
-			}
-
-			else {
-				int checkRow = tileList[i]->getBoardPos().x;
-				int checkCol = tileList[i]->getBoardPos().y;
-
-				for (Tile* tile : tileList)
+				if (TileList.at(i)->at(j)->getID().second == 3)
 				{
-					if (tile->getBoardPos().x == checkRow && tile->getBoardPos().y == checkCol + 1)
+					legalMoves.push_back(i);
+				}
+
+				else {
+					
+					int checkCol = TileList.at(i)->at(j)->getID().second + 1;
+					int checkRow = TileList.at(i)->at(j)->getID().first;
+
+					
+					if (TileList.at(checkRow)->at(checkCol)->getOwner() == RED ||
+						TileList.at(checkRow)->at(checkCol)->getOwner() == YELLOW)
 					{
-						if (tile->getOwner() == RED || tile->getOwner() == YELLOW)
-						{
-							legalMoves.push_back(i);
-						}
+						legalMoves.push_back(i);
 					}
 				}
 			}
 		}
 	}
-
+	
+	
 	
 	if (depth == 0) {
 		return legalMoves = { BestTile };
@@ -108,4 +107,36 @@ void Board::turnChange()
 actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
 currTeam = RED;
 }
+
+
+//Prior implementation of line 34 //ADDEDENDUM NOT YET FIXED
+	for (int i = 0; i < TileList.size(); i++)
+	{
+		//If the tile is a legal move
+		if (TileList[i]->getOwner() == UNOWNED)
+		{
+			if (tileList[i]->getBoardPos().y % 4 == 3)
+			{
+				//Add to map of legal moves
+				legalMoves.push_back(i);
+			}
+
+			else {
+				int checkRow = tileList[i]->getBoardPos().x;
+				int checkCol = tileList[i]->getBoardPos().y;
+
+				for (Tile* tile : tileList)
+				{
+					if (tile->getBoardPos().x == checkRow && tile->getBoardPos().y == checkCol + 1)
+					{
+						if (tile->getOwner() == RED || tile->getOwner() == YELLOW)
+						{
+							legalMoves.push_back(i);
+						}
+					}
+				}
+			}
+		}
+	}
+
 */
