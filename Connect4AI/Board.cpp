@@ -140,6 +140,34 @@ void Board::PlaceTile(pair< int, int> ID)
 
 	if (Check4() != UNOWNED) { isQuit = true; }
 }
+// Give turn to AI;
+void Board::turnChange()
+{
+	currTeam = YELLOW;
+
+	actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
+	currTeam = RED;
+}
+
+void Board::actionlessPlaceTile(pair< int, int> ID)
+{
+	for (int i = 0; i < TileList.size(); i++)
+	{
+		for (int j = 0; j < TileList[i]->size(); j++)
+		{
+			if (TileList.at(i)->at(j)->getID() == ID)
+			{
+				cout << "Found ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
+				TileList.at(i)->at(j)->Claim(currTeam);
+				//turnChange();
+				break;
+			}
+		}
+	}
+
+	if (Check4() != UNOWNED) { isQuit = true; }
+}
+
 
 Teams Board::Check4()
 {

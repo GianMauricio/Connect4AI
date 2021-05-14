@@ -48,7 +48,7 @@ private:
 	void PlaceTile(pair< int, int> ID);
 
 	//Place tile but for AI
-	void actionlessPlaceTile(int ID);
+	void actionlessPlaceTile(pair< int, int> ID);
 
 	//Changes the current team turn
 	void turnChange();

@@ -10,7 +10,8 @@ AIPlayer::~AIPlayer()
 	
 }
 
-int AIPlayer::requestMove(Tile* BoardState[4][5], Teams currTeam, int depth, int alpha, int beta)
+
+pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam, int depth, int alpha, int beta)
 {
 	//Scan board for all possible moves and assign values to them
 	vector<pair<int,int>> legalMoves;
