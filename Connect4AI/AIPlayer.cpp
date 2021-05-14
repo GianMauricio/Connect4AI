@@ -14,7 +14,7 @@ AIPlayer::~AIPlayer()
 pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam, int depth, int alpha, int beta)
 {
 	//Scan board for all possible moves and assign values to them
-	vector<pair<int,int>> legalMoves;
+	pair<int, int> legalMoves;
 	pair<int, int> BestTile = { 0, 0 };
 	int bestScore;
 
@@ -30,11 +30,11 @@ pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam,
 
 	//??? Check board state?
 	
-	//Using list of all tiles... find all legal moves
-	for (int i = 0; i < tileList.size(); i++)
+	//Using list of all tiles... find all legal moves //ADDEDENDUM NOT YET FIXED
+	for (int i = 0; i < TileList.size(); i++)
 	{
 		//If the tile is a legal move
-		if (tileList[i]->getOwner() == UNOWNED)
+		if (TileList[i]->getOwner() == UNOWNED)
 		{
 			if (tileList[i]->getBoardPos().y % 4 == 3)
 			{
@@ -62,7 +62,7 @@ pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam,
 
 	
 	if (depth == 0) {
-		return legalMoves[BestTile];
+		return legalMoves = { BestTile };
 	}
 	
 	//For all legal moves, do this function again with depth - 1;
@@ -71,7 +71,7 @@ pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam,
 
 	//Compare score of ^^^ to currently established best move (across all searches)
 	
-	return requestMove(tileList, currTeam, depth - 1, alpha, beta);
+	return requestMove(TileList, currTeam, depth - 1, alpha, beta);
 }
 
 /*----------------------------------------NOAH ARK---------------------------------------------------
