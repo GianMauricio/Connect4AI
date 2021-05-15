@@ -132,21 +132,29 @@ void Board::PlaceTile(pair< int, int> ID)
 			{
 				cout << "Found ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
 				TileList.at(i)->at(j)->Claim(currTeam);
-				turnChange();
+				
 				break;
 			}
 		}
 	}
 
-	if (Check4() != UNOWNED) { isQuit = true; }
+	if (Check4() != UNOWNED) { 
+		isQuit = true;
+	}
+
+	turnChange();
 }
 // Give turn to AI;
 void Board::turnChange()
 {
-	currTeam = YELLOW;
-
+	if (currTeam == RED) {
+		currTeam = YELLOW;
+	}
+	else {
+		currTeam = RED;
+	}
 	//actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
-	currTeam = RED;
+	//currTeam = RED;
 }
 
 void Board::actionlessPlaceTile(pair< int, int> ID)
@@ -171,259 +179,304 @@ void Board::actionlessPlaceTile(pair< int, int> ID)
 
 Teams Board::Check4()
 {
+	//Column sequence search
 	//Search alg
-	Teams colInitial = UNOWNED;
 	int count = 0;
+	int totalCount = 0;
 
 	//Search through all Columns
 	for (int i = 0; i < 5; i++) /*Column number*/
 	{
-		//Set initial team
-		colInitial = TileList.at(i)->at(0)->getOwner();
-
-		//If circle is unowned, continue to next column
-		if (colInitial == UNOWNED)
-		{
-			count = 0;
-			continue;
-		}
-
-		//cout << "checking column: " << initialTile << endl;
 		for (int j = 0; j < 4; j++) /*Circle in column*/
 		{
-			//If circle belongs to the opposite team, stop checking column
-			if (TileList.at(i)->at(j)->getOwner() != colInitial)
+			//If circle belongs to the this player
+			if (TileList.at(i)->at(j)->getOwner() == currTeam)
 			{
-				count = 0;
-				break;
-			}
-
-			//Otherwise, increase count
-			else
-			{
+				//Increase count of current sequence search
 				count++;
 			}
-		}
 
-		//cout << "Current col count: " << count << endl;
-		if (count == 4)
-		{
-			string winner = "";
-			if(colInitial == RED)
-			{
-				winner = "Red Team";
-			}
+			//Otherwise, reset count
 			else
 			{
-				winner = "Yellow Team";
+				count = 0;
 			}
-			cout << "Col search found that "<< winner << " is the winner!" << endl;
-			return colInitial;
+
+			//If current sequence search has found enough circles in sequence
+			if (count == 4)
+			{
+				string winner = "";
+				if (currTeam == RED)
+				{
+					winner = "Red Team";
+				}
+				else
+				{
+					winner = "Yellow Team";
+				}
+				cout << "Search found that " << winner << " is the winner!" << endl;
+				return currTeam;
+			}
 		}
-	}
-	
-	//Search through all rows
+
+		//Once done checking this column, reset circles in sequence
+		count = 0;
+	} /*This isn't best implementation for this... too bad!*/
+
+	//Search through all Rows
 	count = 0;
-	Teams rowInitial;
-	
-	//Forward facing row-search
+
+	//Row-search
 	for (int i = 0; i < 4; i++) //Row number
 	{
-		rowInitial = TileList.at(0)->at(i)->getOwner();
-
-		if (rowInitial == UNOWNED)
+		for (int j = 0; j < 5; j++) //Circle in row
 		{
-			count = 0;
-			continue;
-		}
-
-		for (int j = 0; j < 4; j++) //Circle in row
-		{
-			//cout << "Tile being checked: " << checkTile << endl;
-			if (TileList.at(j)->at(i)->getOwner() != rowInitial)
+			//If circle in row is the same as player team
+			if (TileList.at(j)->at(i)->getOwner() == currTeam)
 			{
-				count = 0;
-				break;
-			}
-
-			else
-			{
+				//Increase count
 				count++;
 			}
-		}
 
-		//if forward facing finds stuff
-		if (count == 4)
-		{
-			string winner = "";
-			if (rowInitial == RED)
-			{
-				winner = "Red Team";
-			}
+			//Otherwise
 			else
 			{
-				winner = "Yellow Team";
-			}
-			cout << "F. Row search found that " << winner << " is the winner!" << endl;
-			return rowInitial;
-		}
-	}
-
-	
-	//Backwards facing row search
-	count = 0;
-	for(int i = 0; i < 4; i++)
-	{
-		rowInitial = TileList.at(4)->at(i)->getOwner();
-
-		if (rowInitial == UNOWNED)
-		{
-			count = 0;
-			continue;
-		}
-
-		for (int j = 4; j > 0; j--)
-		{
-			if (TileList.at(j)->at(i)->getOwner() != rowInitial)
-			{
+				//Reset count
 				count = 0;
-				break;
 			}
 
-			else
+			//If current sequence search has found enough circles in sequence
+			if (count == 4)
 			{
-				count++;
+				string winner = "";
+				if (currTeam == RED)
+				{
+					winner = "Red Team";
+				}
+				else
+				{
+					winner = "Yellow Team";
+				}
+				cout << "Search found that " << winner << " is the winner!" << endl;
+				return currTeam;
 			}
 		}
 
-		//if backwards facing finds stuff
-		if (count == 4)
-		{
-			string winner = "";
-			if (rowInitial == RED)
-			{
-				winner = "Red Team";
-			}
-			else
-			{
-				winner = "Yellow Team";
-			}
-			cout << "B. Row search found that " << winner << " is the winner!" << endl;
-			return rowInitial;
-		}
+		//Reset count before moving to next row
+		count = 0;
 	}
 
-	
-	//Diagonal check
+	//Search Diags
 	//Diag ID:i
+	//Reset count prior to doing anything, just in case
 	count = 0;
-	Teams initialDiag = TileList.at(0)->at(0)->getOwner();
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)/*For every circle in diagonal*/
 	{
-		if(TileList.at(i)->at(i)->getOwner() != initialDiag)
-		{
-			count = 0;
-			break;
-		}
 
-		else
+		//If circle is of player team increment count
+		if (TileList.at(i)->at(i)->getOwner() == currTeam)
 		{
 			count++;
 		}
-	}
 
-	//If Diag ID:i finds winner
-	if (count == 4 && initialDiag != UNOWNED)
-	{
-		string winner = "";
-		if (initialDiag == RED)
-		{
-			winner = "Red Team";
-		}
+		//Otherwise reset count
 		else
 		{
-			winner = "Yellow Team";
+			count = 0;
 		}
-		cout << "Diag ID:i found that " << winner << " is the winner!" << endl;
-		return initialDiag;
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (currTeam == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return currTeam;
+		}
 	}
 
-	//DONE
 	//Diag ID:i+1
+	//Reset count prior to doing anything, just in case
 	count = 0;
-	initialDiag = TileList.at(1)->at(0)->getOwner();
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++) /*For every circle in diag*/
 	{
-		if (TileList.at(i + 1)->at(i)->getOwner() != initialDiag)
-		{
-			count = 0;
-			break;
-		}
-
-		else
+		//If current player owns it, increment count
+		if (TileList.at(i + 1)->at(i)->getOwner() == currTeam)
 		{
 			count++;
 		}
-	}
 
-	//If Diag ID:i+1
-	if (count == 4 && initialDiag != UNOWNED)
-	{
-		string winner = "";
-		if (initialDiag == RED)
-		{
-			winner = "Red Team";
-		}
+		//otherwise reset count
 		else
 		{
-			winner = "Yellow Team";
+			count = 0;
 		}
-		cout << "Diag ID:i+1 search found that " << winner << " is the winner!" << endl;
-		return initialDiag;
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (currTeam == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return currTeam;
+		}
 	}
 
-	
 	//Diag ID:3
+	//Reset count prior to doing anything, just in case
 	count = 0;
-	initialDiag = TileList.at(3)->at(0)->getOwner();
 	for (int i = 0; i < 4; i++)
 	{
-		if (TileList.at(3 - i)->at(i)->getOwner() != initialDiag)
-		{
-			count = 0;
-			break;
-		}
-
-		else
+		if (TileList.at(3 - i)->at(i)->getOwner() == currTeam)
 		{
 			count++;
 		}
-	}
 
-	//If Diag ID:3
-	if (count == 4 && initialDiag != UNOWNED)
-	{
-		string winner = "";
-		if (initialDiag == RED)
-		{
-			winner = "Red Team";
-		}
 		else
 		{
-			winner = "Yellow Team";
+			count = 0;
 		}
-		cout << "Diag ID3 search found that " << winner << " is the winner!" << endl;
-		return initialDiag;
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (currTeam == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return currTeam;
+		}
 	}
-	
+
 
 	//DONE
 	//Diag ID:4
 	count = 0;
-	initialDiag = TileList.at(4)->at(0)->getOwner();
 	for (int i = 0; i < 4; i++)
 	{
-		if (TileList.at(4 - i)->at(i)->getOwner() != initialDiag)
+		if (TileList.at(4 - i)->at(i)->getOwner() == currTeam)
+		{
+			count++;
+		}
+
+		else
+		{
+			count = 0;
+		}
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (currTeam == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return currTeam;
+		}
+	}
+
+	
+	isTie();
+	return UNOWNED;
+}
+
+/*
+//Search alg
+	Teams colInitial = UNOWNED;
+	int count = 0;
+
+	//Search through all Columns
+	for (int i = 0; i < 5; i++) /*Column number
+{
+	//Set initial team
+	colInitial = TileList.at(i)->at(0)->getOwner();
+
+	//If circle is unowned, continue to next column
+	if (colInitial == UNOWNED)
+	{
+		count = 0;
+		continue;
+	}
+
+	//cout << "checking column: " << initialTile << endl;
+	for (int j = 0; j < 4; j++) /*Circle in column
+	{
+		//If circle belongs to the opposite team, stop checking column
+		if (TileList.at(i)->at(j)->getOwner() != colInitial)
+		{
+			count = 0;
+			break;
+		}
+
+		//Otherwise, increase count
+		else
+		{
+			count++;
+		}
+	}
+
+	//cout << "Current col count: " << count << endl;
+	if (count == 4)
+	{
+		string winner = "";
+		if (colInitial == RED)
+		{
+			winner = "Red Team";
+		}
+		else
+		{
+			winner = "Yellow Team";
+		}
+		cout << "Col search found that " << winner << " is the winner!" << endl;
+		return colInitial;
+	}
+}
+
+//Search through all rows
+count = 0;
+Teams rowInitial;
+
+//Forward facing row-search
+for (int i = 0; i < 4; i++) //Row number
+{
+	rowInitial = TileList.at(0)->at(i)->getOwner();
+
+	if (rowInitial == UNOWNED)
+	{
+		count = 0;
+		continue;
+	}
+
+	for (int j = 0; j < 4; j++) //Circle in row
+	{
+		//cout << "Tile being checked: " << checkTile << endl;
+		if (TileList.at(j)->at(i)->getOwner() != rowInitial)
 		{
 			count = 0;
 			break;
@@ -435,11 +488,11 @@ Teams Board::Check4()
 		}
 	}
 
-	//If Diag ID:4
-	if (count == 4 && initialDiag != UNOWNED)
+	//if forward facing finds stuff
+	if (count == 4)
 	{
 		string winner = "";
-		if (initialDiag == RED)
+		if (rowInitial == RED)
 		{
 			winner = "Red Team";
 		}
@@ -447,10 +500,195 @@ Teams Board::Check4()
 		{
 			winner = "Yellow Team";
 		}
-		cout << "Diag ID 4 search found that " << winner << " is the winner!" << endl;
-		return initialDiag;
+		cout << "F. Row search found that " << winner << " is the winner!" << endl;
+		return rowInitial;
+	}
+}
+
+
+//Backwards facing row search
+count = 0;
+for (int i = 0; i < 4; i++)
+{
+	rowInitial = TileList.at(4)->at(i)->getOwner();
+
+	if (rowInitial == UNOWNED)
+	{
+		count = 0;
+		continue;
 	}
 
-	isTie();
-	return UNOWNED;
+	for (int j = 4; j > 0; j--)
+	{
+		if (TileList.at(j)->at(i)->getOwner() != rowInitial)
+		{
+			count = 0;
+			break;
+		}
+
+		else
+		{
+			count++;
+		}
+	}
+
+	//if backwards facing finds stuff
+	if (count == 4)
+	{
+		string winner = "";
+		if (rowInitial == RED)
+		{
+			winner = "Red Team";
+		}
+		else
+		{
+			winner = "Yellow Team";
+		}
+		cout << "B. Row search found that " << winner << " is the winner!" << endl;
+		return rowInitial;
+	}
 }
+
+
+//Diagonal check
+//Diag ID:i
+count = 0;
+Teams initialDiag = TileList.at(0)->at(0)->getOwner();
+for (int i = 0; i < 4; i++)
+{
+	if (TileList.at(i)->at(i)->getOwner() != initialDiag)
+	{
+		count = 0;
+		break;
+	}
+
+	else
+	{
+		count++;
+	}
+}
+
+//If Diag ID:i finds winner
+if (count == 4 && initialDiag != UNOWNED)
+{
+	string winner = "";
+	if (initialDiag == RED)
+	{
+		winner = "Red Team";
+	}
+	else
+	{
+		winner = "Yellow Team";
+	}
+	cout << "Diag ID:i found that " << winner << " is the winner!" << endl;
+	return initialDiag;
+}
+
+//DONE
+//Diag ID:i+1
+count = 0;
+initialDiag = TileList.at(1)->at(0)->getOwner();
+for (int i = 0; i < 4; i++)
+{
+	if (TileList.at(i + 1)->at(i)->getOwner() != initialDiag)
+	{
+		count = 0;
+		break;
+	}
+
+	else
+	{
+		count++;
+	}
+}
+
+//If Diag ID:i+1
+if (count == 4 && initialDiag != UNOWNED)
+{
+	string winner = "";
+	if (initialDiag == RED)
+	{
+		winner = "Red Team";
+	}
+	else
+	{
+		winner = "Yellow Team";
+	}
+	cout << "Diag ID:i+1 search found that " << winner << " is the winner!" << endl;
+	return initialDiag;
+}
+
+
+//Diag ID:3
+count = 0;
+initialDiag = TileList.at(3)->at(0)->getOwner();
+for (int i = 0; i < 4; i++)
+{
+	if (TileList.at(3 - i)->at(i)->getOwner() != initialDiag)
+	{
+		count = 0;
+		break;
+	}
+
+	else
+	{
+		count++;
+	}
+}
+
+//If Diag ID:3
+if (count == 4 && initialDiag != UNOWNED)
+{
+	string winner = "";
+	if (initialDiag == RED)
+	{
+		winner = "Red Team";
+	}
+	else
+	{
+		winner = "Yellow Team";
+	}
+	cout << "Diag ID3 search found that " << winner << " is the winner!" << endl;
+	return initialDiag;
+}
+
+
+//DONE
+//Diag ID:4
+count = 0;
+initialDiag = TileList.at(4)->at(0)->getOwner();
+for (int i = 0; i < 4; i++)
+{
+	if (TileList.at(4 - i)->at(i)->getOwner() != initialDiag)
+	{
+		count = 0;
+		break;
+	}
+
+	else
+	{
+		count++;
+	}
+}
+
+//If Diag ID:4
+if (count == 4 && initialDiag != UNOWNED)
+{
+	string winner = "";
+	if (initialDiag == RED)
+	{
+		winner = "Red Team";
+	}
+	else
+	{
+		winner = "Yellow Team";
+	}
+	cout << "Diag ID 4 search found that " << winner << " is the winner!" << endl;
+	return initialDiag;
+}
+
+
+
+
+
+*/
