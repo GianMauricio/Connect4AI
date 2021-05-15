@@ -5,10 +5,26 @@ Tile::Tile(int X, int Y, int width, int height)
 {
 	this->ID = {X, Y};
 	this->sBody = new Sprite();
+	this->width = width;
+	this->height = height;
 	
 	//Set unowned to current texture
 	this->sBody->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
 	this->sBody->setTextureRect(IntRect(0, 0, width, height));
+
+	this->currOwner = UNOWNED;
+}
+
+Tile::Tile(Tile* oldTile)
+{
+	this->ID = oldTile->getID();
+	this->sBody = new Sprite();
+
+	//Set unowned to current texture
+	this->sBody->setTexture(*TextureHandler::getInstance()->getTexture("Tiles", 0));
+	this->sBody->setTextureRect(IntRect(0, 0, oldTile->getWidth(), oldTile->getHeight()));
+	
+	this->Claim(oldTile->getOwner());
 }
 
 Tile::~Tile()
@@ -43,6 +59,16 @@ bool Tile::inBounds(Vector2f clickLoc)
 Teams Tile::getOwner()
 {
 	return currOwner;
+}
+
+int Tile::getWidth()
+{
+	return this->width;
+}
+
+int Tile::getHeight()
+{
+	return this->height;
 }
 
 void Tile::Claim(Teams newOwner)

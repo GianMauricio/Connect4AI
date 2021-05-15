@@ -12,7 +12,9 @@ BaseRunner::BaseRunner() : window(VideoMode(WIDTH, HEIGHT), "Connect4", Style::C
 	tileBoard = new Board(5, 4);
 
 	//Make new opponent
-	opponent = new AIPlayer();
+	opponent = new AIPlayer(2); /*Set to 19 because that's literally all possible moves*/
+
+	tileBoard->setAI(opponent);
 }
 
 void BaseRunner::run()

@@ -52,21 +52,21 @@ void Board::tryPlace(Vector2f mousePos)
 		{
 			if (TileList.at(i)->at(j)->inBounds(mousePos))
 			{
-				cout << "Checking Tile ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
+				//cout << "Checking Tile ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
 				if (TileList.at(i)->at(j)->getOwner() == UNOWNED)
 				{
 					if (TileList.at(i)->at(j)->getID().second == 3)
 					{
-						cout << "Checking for bottom tile" << endl;
+						//cout << "Checking for bottom tile" << endl;
 						PlaceTile(TileList.at(i)->at(j)->getID());
 					}
 
 					else {
-						cout << "Checking for non-bottom tile" << endl;
+						//cout << "Checking for non-bottom tile" << endl;
 						int checkCol = TileList.at(i)->at(j)->getID().second + 1;
 						int checkRow = TileList.at(i)->at(j)->getID().first;
 
-						cout << "Checking tile with ID: " << checkRow << ", "<< checkCol << endl;
+						//cout << "Checking tile with ID: " << checkRow << ", "<< checkCol << endl;
 						if (TileList.at(checkRow)->at(checkCol)->getOwner() == RED || 
 							TileList.at(checkRow)->at(checkCol)->getOwner() == YELLOW)
 						{
@@ -130,7 +130,7 @@ void Board::PlaceTile(pair< int, int> ID)
 		{
 			if (TileList.at(i)->at(j)->getID() == ID)
 			{
-				cout << "Found ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
+				//cout << "Found ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
 				TileList.at(i)->at(j)->Claim(currTeam);
 				turnChange();
 				break;
@@ -140,34 +140,29 @@ void Board::PlaceTile(pair< int, int> ID)
 
 	if (Check4() != UNOWNED) { isQuit = true; }
 }
+
 // Give turn to AI;
 void Board::turnChange()
 {
-	currTeam = YELLOW;
-
-	actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
-	currTeam = RED;
+	if (currTeam == RED) 
+	{
+		currTeam = YELLOW;
+		actionlessPlaceTile(this->opponent->requestMove(this->TileList, MAX_DEPTH));
+	}
+	
+	else 
+	{
+		currTeam = RED;
+	}
 }
 
 void Board::actionlessPlaceTile(pair< int, int> ID)
 {
-	for (int i = 0; i < TileList.size(); i++)
-	{
-		for (int j = 0; j < TileList[i]->size(); j++)
-		{
-			if (TileList.at(i)->at(j)->getID() == ID)
-			{
-				cout << "Found ID: " << TileList.at(i)->at(j)->getID().first << ", " << TileList.at(i)->at(j)->getID().second << endl;
-				TileList.at(i)->at(j)->Claim(currTeam);
-				//turnChange();
-				break;
-			}
-		}
-	}
-
+	cout << "Found ID: " << ID.first << ", " << ID.second << endl;
+	TileList.at(ID.first)->at(ID.second)->Claim(currTeam);
 	if (Check4() != UNOWNED) { isQuit = true; }
+	turnChange();
 }
-
 
 Teams Board::Check4()
 {
