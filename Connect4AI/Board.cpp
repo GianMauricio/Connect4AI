@@ -59,6 +59,7 @@ void Board::tryPlace(Vector2f mousePos)
 					{
 						cout << "Checking for bottom tile" << endl;
 						PlaceTile(TileList.at(i)->at(j)->getID());
+						cout << std::numeric_limits<int>::max() * -1 << endl;
 					}
 
 					else {
@@ -149,6 +150,7 @@ void Board::turnChange()
 {
 	if (currTeam == RED) {
 		currTeam = YELLOW;
+		//ADD AI check here
 	}
 	else {
 		currTeam = RED;
@@ -689,6 +691,267 @@ if (count == 4 && initialDiag != UNOWNED)
 
 
 
+Teams AIPlayer::isWon(BoardState state)
+{
+	//Search alg
+	Teams colInitial = UNOWNED;
+	int count = 0;
+
+	//Search through all Columns
+	for (int i = 0; i < 5; i++) /*Column number
+	{
+	colInitial = state.at(i)->at(0)->getOwner();
+	for (int j = 0; j < 4; j++) /*Circle in column
+	{
+		//If circle belongs to the this player
+		if (state.at(i)->at(j)->getOwner() == colInitial)
+		{
+			//Increase count of current sequence search
+			count++;
+		}
+
+		//Otherwise, reset count
+		else
+		{
+			count = 0;
+		}
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (colInitial == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return colInitial;
+		}
+	}
+
+	//Once done checking this column, reset circles in sequence
+	count = 0;
+	} /*This isn't best implementation for this... too bad!
+
+	//Search through all Rows
+	count = 0;
+	Teams rowInitial;
+	//Row-search
+	for (int i = 0; i < 4; i++) //Row number
+	{
+		rowInitial = state.at(0)->at(i)->getOwner();
+		for (int j = 0; j < 5; j++) //Circle in row
+		{
+			//If circle in row is the same as player team
+			if (state.at(j)->at(i)->getOwner() == rowInitial)
+			{
+				//Increase count
+				count++;
+			}
+
+			//Otherwise
+			else
+			{
+				//Reset count
+				count = 0;
+			}
+
+			//If current sequence search has found enough circles in sequence
+			if (count == 4)
+			{
+				string winner = "";
+				if (rowInitial == RED)
+				{
+					winner = "Red Team";
+				}
+				else
+				{
+					winner = "Yellow Team";
+				}
+				cout << "Search found that " << winner << " is the winner!" << endl;
+				return rowInitial;
+			}
+		}
+
+		//Reset count before moving to next row
+		count = 0;
+	}
+
+	//Backwards facing row search
+	count = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		rowInitial = state.at(4)->at(i)->getOwner();
+
+		if (rowInitial == UNOWNED)
+		{
+			count = 0;
+			continue;
+		}
+
+		for (int j = 4; j > 0; j--)
+		{
+			if (state.at(j)->at(i)->getOwner() != rowInitial)
+			{
+				count = 0;
+				break;
+			}
+
+			else
+			{
+				count++;
+			}
+		}
+
+		//if backwards facing finds stuff
+		if (count == 4)
+		{
+			return rowInitial;
+		}
+	}
+
+	//Search Diags
+	//Diag ID:i
+	//Reset count prior to doing anything, just in case
+	count = 0;
+	Teams initialDiag = state.at(0)->at(0)->getOwner();
+	for (int i = 0; i < 4; i++)/*For every circle in diagonal
+	{
+
+		//If circle is of player team increment count
+		if (state.at(i)->at(i)->getOwner() == initialDiag)
+		{
+			count++;
+		}
+
+		//Otherwise reset count
+		else
+		{
+			count = 0;
+		}
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (initialDiag == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return initialDiag;
+		}
+	}
+
+	//Diag ID:i+1
+	//Reset count prior to doing anything, just in case
+	count = 0;
+	initialDiag = state.at(1)->at(0)->getOwner();
+	for (int i = 0; i < 4; i++) /*For every circle in diag
+	{
+		//If current player owns it, increment count
+		if (state.at(i + 1)->at(i)->getOwner() == initialDiag)
+		{
+			count++;
+		}
+
+		//otherwise reset count
+		else
+		{
+			count = 0;
+		}
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (initialDiag == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return initialDiag;
+		}
+	}
+
+	//Diag ID:3
+	//Reset count prior to doing anything, just in case
+	count = 0;
+	initialDiag = state.at(3)->at(0)->getOwner();
+	for (int i = 0; i < 4; i++)
+	{
+		if (state.at(3 - i)->at(i)->getOwner() == initialDiag)
+		{
+			count++;
+		}
+
+		else
+		{
+			count = 0;
+		}
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (initialDiag == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return initialDiag;
+		}
+	}
+
+	//DONE
+	//Diag ID:4
+	count = 0;
+	initialDiag = state.at(4)->at(0)->getOwner();
+	for (int i = 0; i < 4; i++)
+	{
+		if (state.at(4 - i)->at(i)->getOwner() == initialDiag)
+		{
+			count++;
+		}
+
+		else
+		{
+			count = 0;
+		}
+
+		//If current sequence search has found enough circles in sequence
+		if (count == 4)
+		{
+			string winner = "";
+			if (initialDiag == RED)
+			{
+				winner = "Red Team";
+			}
+			else
+			{
+				winner = "Yellow Team";
+			}
+			cout << "Search found that " << winner << " is the winner!" << endl;
+			return initialDiag;
+		}
+	}
+}
 
 
 */
