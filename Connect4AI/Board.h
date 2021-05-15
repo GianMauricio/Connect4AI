@@ -39,7 +39,7 @@ private:
 	int tileLength = 192;
 	int TilesAcross;
 	int TilesAlong;
-	bool isQuit = false;
+	//bool isQuit = false;
 	vector<tileRow*> TileList;
 	Teams currTeam = RED;
 	AIPlayer* opponent;

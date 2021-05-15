@@ -145,7 +145,7 @@ void Board::turnChange()
 {
 	currTeam = YELLOW;
 
-	actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
+	//actionlessPlaceTile(opponent->requestMove(this->TileList, currTeam, MAX_DEPTH, LOSS, WIN));
 	currTeam = RED;
 }
 

@@ -39,7 +39,7 @@ pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam,
 			{
 				if (TileList.at(i)->at(j)->getID().second == 3)
 				{
-					legalMoves.push_back(i);
+				//	legalMoves.push_back(i);
 				}
 
 				else {
@@ -51,7 +51,7 @@ pair< int, int> AIPlayer::requestMove(vector<tileRow*> TileList, Teams currTeam,
 					if (TileList.at(checkRow)->at(checkCol)->getOwner() == RED ||
 						TileList.at(checkRow)->at(checkCol)->getOwner() == YELLOW)
 					{
-						legalMoves.push_back(i);
+				//		legalMoves.push_back(i);
 					}
 				}
 			}
