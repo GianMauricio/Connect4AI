@@ -29,7 +29,6 @@ Tile::Tile(Tile* oldTile)
 
 Tile::~Tile()
 {
-	
 }
 
 void Tile::Draw(RenderWindow* targetWindow, RenderStates state)

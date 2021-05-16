@@ -8,27 +8,6 @@
 typedef vector<Tile*> tileRow;
 typedef vector<tileRow*> BoardState;
 
-struct pair_hash
-{
-	template <class T1, class T2>
-	std::size_t operator() (const std::pair<T1, T2>& pair) const {
-		return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
-	}
-};
-
-struct comp
-{
-	template<typename T>
-	bool operator()(const T& l, const T& r) const
-	{
-		if (l.first == r.first) {
-			return l.second > r.second;
-		}
-
-		return l.first < r.first;
-	}
-};
-
 class AIPlayer
 {
 public:

@@ -1,5 +1,10 @@
 #include "AIPlayer.h"
 
+#include <chrono>
+#include <random>
+
+
+
 #include "Board.h"
 
 AIPlayer::AIPlayer(int maxDepth)
@@ -14,13 +19,8 @@ AIPlayer::~AIPlayer()
 
 pair<int, int> AIPlayer::requestMove(vector<tileRow*> TileGrid, int depth)
 {
-	
 	//Scan board for all possible moves
 	vector<pair<int, int>> legalMoves; //Legal moves
-
-	//Pass to return
-	pair<int, int> BestTile = { -1, -1 }; //This should change or we die
-	int bestScore = -10000;
 
 	//Determine all legal moves
 	for (int i = 0; i < TileGrid.size(); i++)
@@ -50,18 +50,24 @@ pair<int, int> AIPlayer::requestMove(vector<tileRow*> TileGrid, int depth)
 			}
 		}
 	}
-
+	
+	//Shuffle all possible moves to (try and) avoid side bias
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle(legalMoves.begin(), legalMoves.end(), default_random_engine(seed));
+	
+	//Initialize values
+	pair<int, int> BestTile = legalMoves.at(0); //best move is equal to the first move of randomized vector
+	int bestScore = -99999999; /*Start at worst possible score*/
+	
 	//Set alpha/beta
-	int Alpha = -10000; //Assume min because we go up O wO
-	int Beta = 10000; //Assume max because we go down Uw U
+	int Alpha = -99999999; //Assume min because we go up O wO
+	int Beta = 99999999; //Assume max because we go down Uw U
 	
 	//For every legal move...
 	for (auto& key_Val : legalMoves)
 	{
-		//PRAY FOR MY FUCKING RAM
-		
-		//Make fake board(s)
-		vector<tileRow*> fakeBoard; //RIP Space complexity
+		//Make fake board based on move
+		vector<tileRow*> fakeBoard;
 
 		//Initialize fake board
 		for (int i = 0; i < 5; i++)
@@ -81,15 +87,17 @@ pair<int, int> AIPlayer::requestMove(vector<tileRow*> TileGrid, int depth)
 		fakeBoard.at(key_Val.first)->at(key_Val.second)->Claim(YELLOW);
 
 		//USE FAKE BOARD OR WE ALL DIE
-		int boardScore = bestMoveMin(fakeBoard, depth, Alpha, Beta, YELLOW, RED); //Call starts with player turn because it's always player turn next U wU
+		int boardScore = bestMoveMin(fakeBoard, depth - 1, Alpha, Beta, YELLOW, RED); //Call starts with player turn because it's always player turn next U wU
 
+		cout << "Move ID {" << key_Val.first << ", " << key_Val.second << "} has score " << boardScore << endl;
+		
 		if(boardScore > bestScore)
 		{
 			bestScore = boardScore;
 			BestTile = key_Val;
 		}
 	}
-	
+
 	return BestTile;
 }
 
@@ -167,7 +175,7 @@ int AIPlayer::bestMoveMax(vector<tileRow*> TileGrid, int depth, int alpha, int b
 	
 	//This is how the loop breaks, this must work OR WE DIE
 	//Check to see if this board state (the one being fed TO this function), is a game over state;
-	if(depth == 0 || !boardDone(TileGrid))
+	if(depth == 0 || boardDone(TileGrid) || legalBoards.empty())
 	{
 		return boardEval(TileGrid, player);
 	}
@@ -179,7 +187,7 @@ int AIPlayer::bestMoveMax(vector<tileRow*> TileGrid, int depth, int alpha, int b
 	//For Every legal board state after this one
 	for(BoardState state : legalBoards)
 	{
-		int boardScore = std::numeric_limits<int>::max() * -1;
+		int boardScore = -99999999;
 
 		//If the current alpha is still smaller than the beta, then recur
 		if(newAlpha < beta)
@@ -211,7 +219,7 @@ int AIPlayer::bestMoveMax(vector<tileRow*> TileGrid, int depth, int alpha, int b
 			newAlpha = boardScore;
 		}
 	}
-
+	
 	//Return new alpha
 	return newAlpha;
 }
@@ -221,7 +229,7 @@ int AIPlayer::bestMoveMin(vector<tileRow*> TileGrid, int depth, int alpha, int b
 {
 	//RECURSIVE THING
 	vector<BoardState> legalBoards;
-
+	
 	//Get all legal moves for the current board state --> save as a vector of board states
 	for (int i = 0; i < TileGrid.size(); i++)
 	{
@@ -287,10 +295,9 @@ int AIPlayer::bestMoveMin(vector<tileRow*> TileGrid, int depth, int alpha, int b
 		}
 	}
 
-
 	//This is how the loop breaks, this must work OR WE DIE
 	//Check to see if this board state (the one being fed TO this function), is a game over state;
-	if (depth == 0 || !boardDone(TileGrid))
+	if (depth == 0 || boardDone(TileGrid) || legalBoards.empty())
 	{
 		return boardEval(TileGrid, player);
 	}
@@ -302,7 +309,7 @@ int AIPlayer::bestMoveMin(vector<tileRow*> TileGrid, int depth, int alpha, int b
 	//For Every legal board state after this one
 	for (BoardState state : legalBoards)
 	{
-		int boardScore = std::numeric_limits<int>::max() * -1;
+		int boardScore = -99999999;
 
 		//If the current alpha is still smaller than the beta, then recur
 		if (alpha < newBeta)
@@ -324,8 +331,8 @@ int AIPlayer::bestMoveMin(vector<tileRow*> TileGrid, int depth, int alpha, int b
 				fakeBoard.push_back(newtileRow);
 			}
 
-			//Recur to find out socre of future boards from THIS move, reduce depth and give the FAKE BOARD FROM THIS LOOP
-			boardScore = bestMoveMin(fakeBoard, depth - 1, alpha, newBeta, player, opponent);
+			//Recur to find out score of future boards from THIS move, reduce depth and give the FAKE BOARD FROM THIS LOOP
+			boardScore = bestMoveMax(fakeBoard, depth - 1, alpha, newBeta, player, opponent);
 		}
 
 		//Update beta values
@@ -334,15 +341,22 @@ int AIPlayer::bestMoveMin(vector<tileRow*> TileGrid, int depth, int alpha, int b
 			newBeta = boardScore;
 		}
 	}
-
-	//Return new alpha
+	
+	//Return new beta
 	return newBeta;
 }
 
 //RISK PRONE --> Dangerous return sequence, check order if possible
 bool AIPlayer::boardDone(BoardState state)
 {
-	return isWon(state) != UNOWNED && isTied(state);
+	bool iswon;
+	bool istie;
+	bool iswonistie;
+	iswon = isWon(state) == UNOWNED;
+	istie = isTied(state);
+	iswonistie = iswon && istie;
+
+	return iswonistie;
 }
 
 Teams AIPlayer::isWon(BoardState state)
@@ -570,13 +584,13 @@ int AIPlayer::boardEval(BoardState state, Teams currPlayer)
 	//Check if opponent has 4s --> if yes then give -MAXVal
 	if(countSequence(state, opponent, 4) > 0)
 	{
-		finalEval = std::numeric_limits<int>::max();
+		finalEval = -9999999;
 		return finalEval;
 	}
 
 	//Otherwise, determine score;
-	int pTotals = pFours * 500 + pThrees * 50 + pTwos * 5;
-	int oTotals = oThrees * 50 + oTwos * 5;
+	int pTotals = pFours * 99999 + pThrees * 999 + pTwos * 9;
+	int oTotals = oThrees * 999 + oTwos * 9;
 
 	finalEval = pTotals - oTotals;
 
